@@ -1,7 +1,7 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\UsuarioController;
 
 // ─── Rutas públicas ───────────────────────────────
 Route::get('/', function () {
@@ -30,4 +30,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/gerente',  function () {
         return view('dashboard.gerente');
     });
+
+    Route::resource('usuarios', UsuarioController::class);
 });

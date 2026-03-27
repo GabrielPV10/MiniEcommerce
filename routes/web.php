@@ -2,11 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\HomeController;
 
 // ─── Rutas públicas ───────────────────────────────
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Registro
 Route::get('/register', [AuthController::class, 'showRegister']);
@@ -18,6 +17,12 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Logout
 Route::post('/logout', [AuthController::class, 'logout']);
+
+// Páginas estáticas - Emanuel (Integrante 2)
+Route::get('/quienes-somos', [HomeController::class, 'quienesSomos'])->name('quienes.somos');
+Route::get('/contacto', [HomeController::class, 'contacto'])->name('contacto');
+Route::get('/mision', [HomeController::class, 'mision'])->name('mision');
+Route::get('/ubicacion', [HomeController::class, 'ubicacion'])->name('ubicacion');
 
 // ─── Rutas protegidas (requieren login) ───────────
 Route::middleware('auth')->group(function () {

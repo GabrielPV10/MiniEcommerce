@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\VentaController;
+use App\Http\Controllers\ProductoController;
 
 // ─── Rutas públicas ───────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -39,4 +40,6 @@ Route::middleware('auth')->group(function () {
 
     // CRUD Ventas - Angel Mauricio
     Route::resource('ventas', VentaController::class);
+
+    Route::resource('productos', ProductoController::class);
 });

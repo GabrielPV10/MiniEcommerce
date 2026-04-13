@@ -1,9 +1,9 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\VentaController;
 
 // ─── Rutas públicas ───────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -23,7 +23,6 @@ Route::get('/ubicacion', [HomeController::class, 'ubicacion'])->name('ubicacion'
 
 // ─── Rutas protegidas (requieren login) ───────────
 Route::middleware('auth')->group(function () {
-
     // Dashboards
     Route::get('/dashboard/cliente', function () {
         return view('dashboard.cliente');
@@ -38,4 +37,6 @@ Route::middleware('auth')->group(function () {
     // CRUD Categorias - Gabriel
     Route::resource('categorias', CategoriaController::class);
 
+    // CRUD Ventas - Angel Mauricio
+    Route::resource('ventas', VentaController::class);
 });

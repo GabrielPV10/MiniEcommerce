@@ -1,24 +1,21 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\UsuarioController;
 
 // ─── Rutas públicas ───────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Registro
-Route::get('/register', [AuthController::class, 'showRegister']);
-Route::post('/register', [AuthController::class, 'register']);
-
 // Login
-Route::get('/login', [AuthController::class, 'showLogin']);
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
 // Logout
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Páginas estáticas - Emanuel (Integrante 2)
+// Páginas estáticas - Emanuel
 Route::get('/quienes-somos', [HomeController::class, 'quienesSomos'])->name('quienes.somos');
 Route::get('/contacto', [HomeController::class, 'contacto'])->name('contacto');
 Route::get('/mision', [HomeController::class, 'mision'])->name('mision');
@@ -26,15 +23,19 @@ Route::get('/ubicacion', [HomeController::class, 'ubicacion'])->name('ubicacion'
 
 // ─── Rutas protegidas (requieren login) ───────────
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard/cliente',  function () {
+
+    // Dashboards
+    Route::get('/dashboard/cliente', function () {
         return view('dashboard.cliente');
     });
     Route::get('/dashboard/empleado', function () {
         return view('dashboard.empleado');
     });
-    Route::get('/dashboard/gerente',  function () {
+    Route::get('/dashboard/gerente', function () {
         return view('dashboard.gerente');
     });
 
-    Route::resource('usuarios', UsuarioController::class);
+    // CRUD Categorias - Gabriel
+    Route::resource('categorias', CategoriaController::class);
+
 });

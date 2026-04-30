@@ -36,12 +36,26 @@ Route::middleware('auth')->group(function () {
     // Dashboards (con verificación de rol y datos reales)
     Route::get('/dashboard/cliente', function () {
         abort_unless(auth()->user()->rol === 'cliente', 403);
-        $stats = [
-            'mis_compras'   => \App\Models\Venta::where('cliente_id', auth()->id())->count(),
-            'total_gastado' => \App\Models\Venta::where('cliente_id', auth()->id())->sum('total'),
-            'productos'     => \App\Models\Producto::count(),
-        ];
-        return view('dashboard.cliente', compact('stats'));
+
+        $query = \App\Models\Producto::with(['categorias', 'usuario']);
+
+        if (request('buscar')) {
+            $query->where(function ($q) {
+                $q->where('nombre', 'like', '%' . request('buscar') . '%')
+                  ->orWhere('descripcion', 'like', '%' . request('buscar') . '%');
+            });
+        }
+
+        $categoriaActiva = null;
+        if (request('categoria')) {
+            $categoriaActiva = \App\Models\Categoria::find(request('categoria'));
+            $query->whereHas('categorias', fn($q) => $q->where('categorias.id', request('categoria')));
+        }
+
+        $productos  = $query->orderBy('nombre')->get();
+        $categorias = \App\Models\Categoria::orderBy('nombre')->get();
+
+        return view('dashboard.cliente', compact('productos', 'categorias', 'categoriaActiva'));
     })->name('dashboard.cliente');
 
     Route::get('/dashboard/empleado', function () {

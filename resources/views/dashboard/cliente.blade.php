@@ -1,54 +1,93 @@
-@extends('layouts.app')
-@section('title', 'Mi panel')
+@extends('layouts.store')
+@section('title', 'Tienda — ' . config('app.name'))
 
 @section('content')
 
-<div class="page-bar">
-    <div>
-        <h1>Mi panel</h1>
-        <p class="sub">Bienvenido, {{ auth()->user()->nombre }}</p>
+{{-- Category strip --}}
+<div class="cat-strip">
+    <div class="cat-strip-inner">
+        <a href="{{ route('dashboard.cliente') }}"
+           class="cat-pill {{ !request('categoria') ? 'active' : '' }}">
+            Todos
+        </a>
+        @foreach($categorias as $cat)
+            <a href="{{ route('dashboard.cliente', array_filter(['categoria' => $cat->id, 'buscar' => request('buscar')])) }}"
+               class="cat-pill {{ request('categoria') == $cat->id ? 'active' : '' }}">
+                {{ $cat->nombre }}
+            </a>
+        @endforeach
     </div>
 </div>
 
-<div class="wrap">
+{{-- Results info --}}
+@if(request('buscar') || request('categoria'))
+<div class="results-bar">
+    <span class="results-text">
+        {{ $productos->count() }} resultado(s)
+        @if(request('buscar')) para "<strong>{{ request('buscar') }}</strong>"@endif
+        @if(request('categoria') && $categoriaActiva) en <strong>{{ $categoriaActiva->nombre }}</strong>@endif
+    </span>
+    <a href="{{ route('dashboard.cliente') }}" class="clear-link">✕ Limpiar filtros</a>
+</div>
+@endif
 
-    {{-- Stats --}}
-    <div class="stats">
-        <div class="stat blue">
-            <p class="stat-label">Mis compras</p>
-            <p class="stat-num">{{ $stats['mis_compras'] }}</p>
-            <p class="stat-sub">Pedidos realizados</p>
-        </div>
-        <div class="stat green">
-            <p class="stat-label">Total gastado</p>
-            <p class="stat-num">${{ number_format($stats['total_gastado'], 0) }}</p>
-            <p class="stat-sub">Acumulado</p>
-        </div>
-        <div class="stat">
-            <p class="stat-label">Productos disponibles</p>
-            <p class="stat-num">{{ $stats['productos'] }}</p>
-            <p class="stat-sub">En catalogo</p>
-        </div>
-    </div>
+{{-- Product grid --}}
+@if($productos->isNotEmpty())
+<div class="product-grid">
+    @foreach($productos as $producto)
+    <div class="p-card">
 
-    {{-- Acceso rapido --}}
-    <div class="card mb-2">
-        <div class="card-head">
-            <h2>Navegacion rapida</h2>
+        <div class="p-img">
+            @if($producto->fotos && count($producto->fotos) > 0)
+                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($producto->fotos[0]) }}"
+                     alt="{{ $producto->nombre }}">
+            @else
+                <div class="p-img-placeholder">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                        <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+                    </svg>
+                    <span>Sin imagen</span>
+                </div>
+            @endif
         </div>
-        <div class="card-body">
-            <div class="qa-grid">
-                <a href="{{ route('productos.index') }}" class="qa-item">
-                    <p class="qa-title">Ver productos</p>
-                    <p class="qa-desc">Explora el catalogo completo de productos</p>
-                </a>
-                <a href="{{ route('ventas.index') }}" class="qa-item">
-                    <p class="qa-title">Mis compras</p>
-                    <p class="qa-desc">Revisa el historial de tus pedidos</p>
-                </a>
+
+        <div class="p-body">
+            <div class="p-cats">
+                @foreach($producto->categorias->take(2) as $cat)
+                    <span class="p-cat">{{ $cat->nombre }}</span>
+                @endforeach
+            </div>
+            <p class="p-name">{{ $producto->nombre }}</p>
+            <p class="p-vendor">Vendido por {{ $producto->usuario->nombre ?? '—' }}</p>
+            <p class="p-price">${{ number_format($producto->precio, 2) }}</p>
+            <div class="p-footer">
+                @if($producto->existencia > 0)
+                    <span class="p-stock-ok">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                        </svg>
+                        En stock
+                    </span>
+                @else
+                    <span class="p-stock-no">Agotado</span>
+                @endif
+                <a href="{{ route('productos.show', $producto) }}" class="p-ver-btn">Ver detalle</a>
             </div>
         </div>
-    </div>
 
+    </div>
+    @endforeach
 </div>
+@else
+<div class="empty-state">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+        <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+    </svg>
+    <h3>No se encontraron productos</h3>
+    <p>Intenta con otro término de búsqueda o navega por las categorías.</p>
+</div>
+@endif
+
 @endsection

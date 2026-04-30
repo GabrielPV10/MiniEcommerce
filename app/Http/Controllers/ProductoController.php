@@ -17,6 +17,9 @@ class ProductoController extends Controller
 
     public function index()
     {
+        if (auth()->user()->rol === 'cliente') {
+            return redirect()->route('dashboard.cliente');
+        }
         $this->authorize('viewAny', Producto::class);
         $productos = Producto::with(['usuario', 'categorias'])->get();
         return view('productos.index', compact('productos'));

@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\UsuarioController;
 
 // ─── Rutas públicas ───────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -13,8 +14,16 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
+// Registro público (solo crea clientes)
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+
 // Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// 2FA — solo accesibles sin sesion activa
+Route::get('/2fa',           [AuthController::class, 'show2fa'])->name('2fa.show');
+Route::post('/2fa/verificar',[AuthController::class, 'verify2fa'])->name('2fa.verificar');
 
 // Páginas estáticas - Emanuel
 Route::get('/quienes-somos', [HomeController::class, 'quienesSomos'])->name('quienes.somos');
@@ -24,22 +33,99 @@ Route::get('/ubicacion', [HomeController::class, 'ubicacion'])->name('ubicacion'
 
 // ─── Rutas protegidas (requieren login) ───────────
 Route::middleware('auth')->group(function () {
-    // Dashboards
+    // Dashboards (con verificación de rol y datos reales)
     Route::get('/dashboard/cliente', function () {
-        return view('dashboard.cliente');
-    });
+        abort_unless(auth()->user()->rol === 'cliente', 403);
+        $stats = [
+            'mis_compras'   => \App\Models\Venta::where('cliente_id', auth()->id())->count(),
+            'total_gastado' => \App\Models\Venta::where('cliente_id', auth()->id())->sum('total'),
+            'productos'     => \App\Models\Producto::count(),
+        ];
+        return view('dashboard.cliente', compact('stats'));
+    })->name('dashboard.cliente');
+
     Route::get('/dashboard/empleado', function () {
-        return view('dashboard.empleado');
-    });
+        abort_unless(in_array(auth()->user()->rol, ['empleado', 'gerente', 'administrador']), 403);
+        $stats = [
+            'mis_productos' => \App\Models\Producto::where('usuario_id', auth()->id())->count(),
+            'mis_ventas'    => \App\Models\Venta::where('vendedor_id', auth()->id())->count(),
+            'total_ventas'  => \App\Models\Venta::where('vendedor_id', auth()->id())->sum('total'),
+            'clientes'      => \App\Models\Usuario::where('rol', 'cliente')->count(),
+        ];
+        return view('dashboard.empleado', compact('stats'));
+    })->name('dashboard.empleado');
+
+    Route::get('/dashboard/administrador', function () {
+        abort_unless(auth()->user()->rol === 'administrador', 403);
+
+        $stats = [
+            'total_usuarios'   => \App\Models\Usuario::count(),
+            'vendedores'       => \App\Models\Usuario::whereIn('rol', ['gerente', 'empleado'])->count(),
+            'compradores'      => \App\Models\Usuario::where('rol', 'cliente')->count(),
+            'total_productos'  => \App\Models\Producto::count(),
+            'total_ventas'     => \App\Models\Venta::count(),
+            'ventas_validadas' => \App\Models\Venta::where('validada', true)->count(),
+            'ingresos'         => \App\Models\Venta::sum('total'),
+            'total_categorias' => \App\Models\Categoria::count(),
+        ];
+
+        // Productos por categoría usando Eloquent withCount
+        $productosPorCategoria = \App\Models\Categoria::withCount('productos')
+            ->orderByDesc('productos_count')
+            ->get();
+
+        // Producto más vendido usando hasMany + withCount
+        $productoMasVendido = \App\Models\Producto::withCount('ventas')
+            ->with('categorias')
+            ->orderByDesc('ventas_count')
+            ->first();
+
+        // Comprador más frecuente por categoría — colecciones Eloquent
+        $compradorPorCategoria = \App\Models\Categoria::with([
+            'productos.ventas.cliente',
+        ])->get()->map(function ($categoria) {
+            $ventas = $categoria->productos->flatMap(fn($p) => $p->ventas);
+            if ($ventas->isEmpty()) return null;
+            $agrupado   = $ventas->groupBy('cliente_id')->sortByDesc(fn($v) => $v->count());
+            $topId      = $agrupado->keys()->first();
+            $topCliente = $ventas->firstWhere('cliente_id', $topId)?->cliente;
+            return [
+                'categoria' => $categoria->nombre,
+                'cliente'   => $topCliente,
+                'compras'   => $agrupado->first()->count(),
+            ];
+        })->filter()->values();
+
+        return view('dashboard.administrador', compact(
+            'stats',
+            'productosPorCategoria',
+            'productoMasVendido',
+            'compradorPorCategoria'
+        ));
+    })->name('dashboard.administrador');
+
     Route::get('/dashboard/gerente', function () {
-        return view('dashboard.gerente');
-    });
+        abort_unless(in_array(auth()->user()->rol, ['gerente', 'administrador']), 403);
+        $stats = [
+            'usuarios'   => \App\Models\Usuario::count(),
+            'productos'  => \App\Models\Producto::count(),
+            'ventas'     => \App\Models\Venta::count(),
+            'categorias' => \App\Models\Categoria::count(),
+            'ingresos'   => \App\Models\Venta::sum('total'),
+        ];
+        return view('dashboard.gerente', compact('stats'));
+    })->name('dashboard.gerente');
 
     // CRUD Categorias - Gabriel
     Route::resource('categorias', CategoriaController::class);
 
     // CRUD Ventas - Angel Mauricio
     Route::resource('ventas', VentaController::class);
+    Route::get('/ventas/{venta}/ticket',   [VentaController::class, 'ticket'])->name('ventas.ticket');
+    Route::post('/ventas/{venta}/validar', [VentaController::class, 'validar'])->name('ventas.validar');
 
     Route::resource('productos', ProductoController::class);
+
+    // CRUD Usuarios
+    Route::resource('usuarios', UsuarioController::class);
 });

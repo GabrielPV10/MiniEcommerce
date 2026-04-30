@@ -2,32 +2,72 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
+use App\Models\Categoria;
+use App\Models\Producto;
 use App\Models\Usuario;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Venta;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Crear administrador fijo
+        // ── 1. Administrador fijo ─────────────────────────────────────────────
         Usuario::create([
             'nombre'    => 'Admin',
             'apellidos' => 'Sistema',
             'correo'    => 'admin@tuxtla.tecnm.mx',
-            'clave'     => Hash::make('123'),
+            'clave'     => '123456',   // cast 'hashed' lo hashea automáticamente
             'rol'       => 'administrador',
         ]);
 
-        // 2. Crear 5 usuarios con Factory
-        Usuario::factory(5)->create();
+        // ── 2. 100 usuarios: 70 clientes + 25 empleados + 5 gerentes ─────────
+        $clientes   = Usuario::factory(70)->cliente()->create();
+        $empleados  = Usuario::factory(25)->empleado()->create();
+        $gerentes   = Usuario::factory(5)->gerente()->create();
+        $vendedores = $empleados->merge($gerentes); // 30 vendedores en total
 
-        // 3. Crear categorías
+        $this->command->info("✅ Usuarios: 1 admin + 70 clientes + 25 empleados + 5 gerentes");
+
+        // ── 3. Categorías ─────────────────────────────────────────────────────
         $this->call(CategoriaSeeder::class);
+        $categorias = Categoria::all();
 
-        // 4. Crear productos
-        $this->call(ProductoSeeder::class);
+        // ── 4. Productos: mínimo 3 por vendedor + asignar categorías ─────────
+        $vendedores->each(function (Usuario $vendedor) use ($categorias) {
+            $cantidad = rand(3, 6);
 
-        $this->command->info('✅ Base de datos poblada correctamente.');
+            Producto::factory($cantidad)
+                ->create(['usuario_id' => $vendedor->id])
+                ->each(function (Producto $producto) use ($categorias) {
+                    $numCats = rand(1, min(3, $categorias->count()));
+                    $producto->categorias()->sync(
+                        $categorias->random($numCats)->pluck('id')->toArray()
+                    );
+                });
+        });
+
+        $totalProductos = Producto::count();
+        $this->command->info("✅ Productos: {$totalProductos} creados (mín. 3 por vendedor, c/u con categoría)");
+
+        // ── 5. Ventas: ~150 ventas entre clientes y vendedores ───────────────
+        $productos   = Producto::all();
+        $vendedoresIds = $vendedores->pluck('id');
+        $clientesIds   = $clientes->pluck('id');
+
+        for ($i = 0; $i < 150; $i++) {
+            $producto = $productos->random();
+            Venta::create([
+                'producto_id' => $producto->id,
+                'vendedor_id' => $vendedoresIds->random(),
+                'cliente_id'  => $clientesIds->random(),
+                'fecha'       => fake()->dateTimeBetween('-8 months', 'now')->format('Y-m-d'),
+                'total'       => round($producto->precio * rand(1, 3), 2),
+                'validada'    => fake()->boolean(35),
+            ]);
+        }
+
+        $this->command->info("✅ Ventas: 150 generadas");
+        $this->command->info("✅ Base de datos poblada correctamente.");
     }
 }

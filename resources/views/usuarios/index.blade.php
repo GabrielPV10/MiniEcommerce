@@ -1,57 +1,91 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Lista de Usuarios</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 30px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        th { background-color: #f4f4f4; }
-        .btn { padding: 5px 10px; text-decoration: none; border-radius: 4px; }
-        .btn-edit { background: #f0ad4e; color: white; }
-        .btn-delete { background: #d9534f; color: white; border: none; cursor: pointer; }
-        .btn-new { background: #5cb85c; color: white; margin-bottom: 15px; display: inline-block; }
-        .alert { background: #dff0d8; padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-    </style>
-</head>
-<body>
-    <h1>Lista de Usuarios</h1>
+@extends('layouts.app')
+@section('title', 'Usuarios')
+
+@section('content')
+
+<div class="page-bar">
+    <div>
+        <h1>Usuarios</h1>
+        <p class="sub">Cuentas registradas en el sistema</p>
+    </div>
+    @can('create', App\Models\Usuario::class)
+        <a href="{{ route('usuarios.create') }}" class="btn btn-success btn-sm">+ Nuevo usuario</a>
+    @endcan
+</div>
+
+<div class="wrap">
 
     @if(session('success'))
-        <div class="alert">{{ session('success') }}</div>
+        <div class="alert alert-s">{{ session('success') }}</div>
     @endif
 
-    <a href="{{ route('usuarios.create') }}" class="btn btn-new">+ Nuevo Usuario</a>
+    <div class="card">
+        <div class="table-wrap">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($usuarios as $usuario)
+                    <tr>
+                        <td class="text-muted text-sm">{{ $usuario->id }}</td>
+                        <td>
+                            <strong>{{ $usuario->nombre }}</strong>
+                            <span class="text-muted"> {{ $usuario->apellidos }}</span>
+                        </td>
+                        <td class="text-sm">{{ $usuario->correo }}</td>
+                        <td>
+                            @php
+                                $badgeMap = [
+                                    'administrador' => 'badge-red',
+                                    'gerente'       => 'badge-yellow',
+                                    'cliente'       => 'badge-blue',
+                                ];
+                                $cls = $badgeMap[$usuario->rol] ?? 'badge-gray';
+                            @endphp
+                            <span class="badge {{ $cls }}">{{ ucfirst($usuario->rol) }}</span>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                @can('view', $usuario)
+                                    <a href="{{ route('usuarios.show', $usuario) }}"
+                                       class="btn btn-primary btn-sm">Ver</a>
+                                @endcan
+                                @can('update', $usuario)
+                                    <a href="{{ route('usuarios.edit', $usuario) }}"
+                                       class="btn btn-warning btn-sm">Editar</a>
+                                @endcan
+                                @can('delete', $usuario)
+                                    <form action="{{ route('usuarios.destroy', $usuario) }}"
+                                          method="POST" style="margin:0">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Eliminar este usuario?')">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                @endcan
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:#718096; padding:2rem">
+                            No hay usuarios registrados.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($usuarios as $usuario)
-            <tr>
-                <td>{{ $usuario->id }}</td>
-                <td>{{ $usuario->nombre }}</td>
-                <td>{{ $usuario->email }}</td>
-                <td>{{ $usuario->rol }}</td>
-                <td>
-                    <a href="{{ route('usuarios.edit', $usuario->id) }}" class="btn btn-edit">Editar</a>
-                    <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-delete" onclick="return confirm('¿Eliminar usuario?')">Eliminar</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</body>
-</html>
+</div>
+@endsection

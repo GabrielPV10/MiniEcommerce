@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(mysql -u root -e \"CREATE DATABASE IF NOT EXISTS pruebas_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")",
+      "Bash(/c/xampp/mysql/bin/mysql -u root -e \"CREATE DATABASE IF NOT EXISTS pruebas_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")",
+      "Bash(mkdir -p c:/xampp/htdocs/Pruebas/app/Mail)",
+      "Bash(mkdir -p c:/xampp/htdocs/Pruebas/resources/views/emails)",
+      "Bash(php -l app/Http/Controllers/AuthController.php)",
+      "Bash(php -l app/Models/CodigoVerificacion.php)",
+      "Bash(php -l app/Mail/CodigoVerificacionMail.php)",
+      "Bash(php -l app/Http/Controllers/ProductoController.php)",
+      "Bash(php -l app/Http/Controllers/VentaController.php)"
+    ]
+  }
+}

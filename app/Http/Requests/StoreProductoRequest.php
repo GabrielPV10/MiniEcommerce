@@ -20,6 +20,8 @@ class StoreProductoRequest extends FormRequest
             'existencia'  => 'required|integer|min:0',
             'categorias'  => 'nullable|array',
             'categorias.*'=> 'exists:categorias,id',
+            'fotos'       => 'nullable|array|max:5',
+            'fotos.*'     => 'image|max:2048',
         ];
     }
 
@@ -38,6 +40,9 @@ class StoreProductoRequest extends FormRequest
             'existencia.integer'   => 'La existencia debe ser un número entero.',
             'existencia.min'       => 'La existencia no puede ser negativa.',
             'categorias.*.exists'  => 'Una categoría seleccionada no existe.',
+            'fotos.max'            => 'Puedes subir máximo 5 imágenes.',
+            'fotos.*.image'        => 'Cada archivo debe ser una imagen.',
+            'fotos.*.max'          => 'Cada imagen no puede superar 2 MB.',
         ];
     }
 }

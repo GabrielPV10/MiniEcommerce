@@ -2,46 +2,41 @@
 
 namespace Database\Factories;
 
+use App\Models\Usuario;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 
 class UsuarioFactory extends Factory
 {
-    private static array $combinaciones = [
-        ['Juan', 'Lopez'],
-        ['Juan', 'Sanchez'],
-        ['Juan', 'Hernandez'],
-        ['Juan', 'Martinez'],
-        ['Mario', 'Lopez'],
-        ['Mario', 'Sanchez'],
-        ['Mario', 'Hernandez'],
-        ['Mario', 'Martinez'],
-        ['Maria', 'Lopez'],
-        ['Maria', 'Sanchez'],
-        ['Maria', 'Hernandez'],
-        ['Maria', 'Martinez'],
-        ['Pedro', 'Lopez'],
-        ['Pedro', 'Sanchez'],
-        ['Pedro', 'Hernandez'],
-        ['Pedro', 'Martinez'],
-    ];
-
-    private static int $indice = 0;
+    protected $model = Usuario::class;
 
     public function definition(): array
     {
-        $combo = self::$combinaciones[self::$indice % count(self::$combinaciones)];
-        self::$indice++;
-
-        $nombre = $combo[0];
-        $apellido = $combo[1];
-
         return [
-            'nombre'    => $nombre,
-            'apellidos' => $apellido,
-            'correo'    => strtolower(substr($nombre, 0, 1) . $apellido) . '@tuxtla.tecnm.mx',
-            'clave'     => Hash::make('123'),
-            'rol'       => $this->faker->randomElement(['cliente', 'gerente']),
+            'nombre'    => $this->faker->firstName(),
+            'apellidos' => $this->faker->lastName() . ' ' . $this->faker->lastName(),
+            'correo'    => $this->faker->unique()->numerify('usuario###') . '@tuxtla.tecnm.mx',
+            'clave'     => '123456',   // el cast 'hashed' del modelo lo hashea automáticamente
+            'rol'       => 'cliente',
         ];
+    }
+
+    public function cliente(): static
+    {
+        return $this->state(['rol' => 'cliente']);
+    }
+
+    public function empleado(): static
+    {
+        return $this->state(['rol' => 'empleado']);
+    }
+
+    public function gerente(): static
+    {
+        return $this->state(['rol' => 'gerente']);
+    }
+
+    public function administrador(): static
+    {
+        return $this->state(['rol' => 'administrador']);
     }
 }

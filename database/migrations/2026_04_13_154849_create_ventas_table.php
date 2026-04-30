@@ -16,6 +16,10 @@ return new class extends Migration
             $table->date('fecha');
             $table->decimal('total', 10, 2);
             $table->timestamps();
+
+            $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade');
+            $table->foreign('vendedor_id')->references('id')->on('usuarios')->onDelete('cascade');
+            $table->foreign('cliente_id')->references('id')->on('usuarios')->onDelete('cascade');
         });
     }
 

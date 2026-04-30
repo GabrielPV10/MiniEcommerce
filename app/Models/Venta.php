@@ -14,6 +14,12 @@ class Venta extends Model
         'cliente_id',
         'fecha',
         'total',
+        'ticket',
+        'validada',
+    ];
+
+    protected $casts = [
+        'validada' => 'boolean',
     ];
 
     public function producto()

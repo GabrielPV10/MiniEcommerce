@@ -14,9 +14,14 @@ class VentaPolicy
 
     public function view(Usuario $usuario, Venta $venta): bool
     {
-        return $usuario->rol === 'administrador' ||
+        return in_array($usuario->rol, ['administrador', 'gerente']) ||
                $venta->cliente_id === $usuario->id ||
                $venta->vendedor_id === $usuario->id;
+    }
+
+    public function validar(Usuario $usuario, Venta $venta): bool
+    {
+        return in_array($usuario->rol, ['administrador', 'gerente']) && !$venta->validada;
     }
 
     public function create(Usuario $usuario): bool

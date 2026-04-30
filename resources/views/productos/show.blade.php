@@ -1,76 +1,107 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Detalle Producto</title>
-</head>
-<body>
-    <h1>Detalle del Producto</h1>
+@extends('layouts.app')
+@section('title', 'Detalle de producto')
+
+@section('content')
+
+<div class="page-bar">
+    <div>
+        <h1>{{ $producto->nombre }}</h1>
+        <p class="sub">Detalle del producto</p>
+    </div>
+    <div style="display:flex; gap:.5rem">
+        @can('update', $producto)
+            <a href="{{ route('productos.edit', $producto) }}" class="btn btn-warning btn-sm">Editar</a>
+        @endcan
+        <a href="{{ route('productos.index') }}" class="btn btn-ghost btn-sm">Volver</a>
+    </div>
+</div>
+
+<div class="wrap">
 
     @if(session('success'))
-        <p style="color:green">{{ session('success') }}</p>
+        <div class="alert alert-s">{{ session('success') }}</div>
     @endif
 
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <td>{{ $producto->id }}</td>
-        </tr>
-        <tr>
-            <th>Nombre</th>
-            <td>{{ $producto->nombre }}</td>
-        </tr>
-        <tr>
-            <th>Descripción</th>
-            <td>{{ $producto->descripcion }}</td>
-        </tr>
-        <tr>
-            <th>Precio</th>
-            <td>${{ number_format($producto->precio, 2) }}</td>
-        </tr>
-        <tr>
-            <th>Existencia</th>
-            <td>{{ $producto->existencia }}</td>
-        </tr>
-        <tr>
-            <th>Vendedor</th>
-            <td>
-                {{ $producto->usuario->nombre ?? 'N/A' }}
-                {{ $producto->usuario->apellidos ?? '' }}
-            </td>
-        </tr>
-        <tr>
-            <th>Categorías</th>
-            <td>
-                @forelse($producto->categorias as $categoria)
-                    <span>{{ $categoria->nombre }}</span>
-                    @if(!$loop->last) | @endif
-                @empty
-                    <span>Sin categorías</span>
-                @endforelse
-            </td>
-        </tr>
-        <tr>
-            <th>Creado</th>
-            <td>{{ $producto->created_at->format('d/m/Y H:i') }}</td>
-        </tr>
-    </table>
+    {{-- Galería de fotos --}}
+    @if($producto->fotos && count($producto->fotos) > 0)
+        <div class="card" style="margin-bottom:1.5rem">
+            <div class="card-head"><h2>Fotos</h2></div>
+            <div class="card-body">
+                <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                    @foreach($producto->fotos as $foto)
+                        <img src="{{ Storage::disk('public')->url($foto) }}"
+                             alt="Foto de {{ $producto->nombre }}"
+                             style="width:160px; height:160px; object-fit:cover; border-radius:4px; border:1px solid #e2e8f0;">
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
 
-    <br>
-    <a href="{{ route('productos.index') }}">← Volver a lista</a>
+    <div class="card" style="max-width:560px">
+        <div class="card-body">
 
-    @can('update', $producto)
-        <a href="{{ route('productos.edit', $producto) }}">Editar</a>
-    @endcan
+            <div class="form-group">
+                <span class="form-label">Nombre</span>
+                <p>{{ $producto->nombre }}</p>
+            </div>
+
+            <div class="form-group">
+                <span class="form-label">Descripcion</span>
+                <p>{{ $producto->descripcion }}</p>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <span class="form-label">Precio</span>
+                    <p style="color:#38a169; font-weight:700; font-size:1.1rem">${{ number_format($producto->precio, 2) }}</p>
+                </div>
+                <div class="form-group">
+                    <span class="form-label">Existencia</span>
+                    @if($producto->existencia > 0)
+                        <span class="badge badge-green">{{ $producto->existencia }} unidades</span>
+                    @else
+                        <span class="badge badge-red">Sin stock</span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="form-group">
+                <span class="form-label">Vendedor</span>
+                <p>{{ $producto->usuario->nombre ?? '—' }} {{ $producto->usuario->apellidos ?? '' }}</p>
+            </div>
+
+            <div class="form-group">
+                <span class="form-label">Categorias</span>
+                <div style="display:flex; gap:.35rem; flex-wrap:wrap; margin-top:.25rem">
+                    @forelse($producto->categorias as $categoria)
+                        <span class="badge badge-blue">{{ $categoria->nombre }}</span>
+                    @empty
+                        <span class="text-muted text-sm">Sin categorias</span>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0">
+                <span class="form-label">Registrado</span>
+                <p class="text-muted text-sm">{{ $producto->created_at->format('d/m/Y H:i') }}</p>
+            </div>
+
+        </div>
+    </div>
 
     @can('delete', $producto)
-        <form action="{{ route('productos.destroy', $producto) }}"
-              method="POST"
-              style="display:inline">
-            @csrf
-            @method('DELETE')
-            <button type="submit">Eliminar</button>
-        </form>
+        <div style="margin-top:1rem">
+            <form action="{{ route('productos.destroy', $producto) }}" method="POST" style="display:inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="return confirm('¿Eliminar este producto y sus fotos?')">
+                    Eliminar producto
+                </button>
+            </form>
+        </div>
     @endcan
-</body>
-</html>
+
+</div>
+@endsection

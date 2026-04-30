@@ -36,11 +36,6 @@ class Usuario extends Authenticatable
         return $this->clave;
     }
 
-    public function getAuthIdentifierName()
-    {
-        return 'correo';
-    }
-
     // Relaciones
     public function productos()
     {

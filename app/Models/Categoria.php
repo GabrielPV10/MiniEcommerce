@@ -13,9 +13,9 @@ class Categoria extends Model
         'descripcion',
     ];
 
-    // Relaciones
     public function productos()
     {
         return $this->belongsToMany(Producto::class, 'categoria_producto');
     }
+
 }

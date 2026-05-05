@@ -1,48 +1,84 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Usuario</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 30px; }
-        input, select { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
-        label { font-weight: bold; }
-        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-save { background: #f0ad4e; color: white; }
-        .btn-back { background: #ccc; color: black; text-decoration: none; padding: 8px 15px; border-radius: 4px; }
-        .error { color: red; font-size: 13px; margin-top: -10px; margin-bottom: 10px; }
-    </style>
-</head>
-<body>
-    <h1>Editar Usuario</h1>
+@extends('layouts.app')
+@section('title', 'Editar usuario')
 
-    <form method="POST" action="{{ route('usuarios.update', $usuario->id) }}">
-        @csrf
-        @method('PUT')
+@section('content')
 
-        <label>Nombre</label>
-        <input type="text" name="nombre" value="{{ old('nombre', $usuario->nombre) }}">
-        @error('nombre') <p class="error">{{ $message }}</p> @enderror
+<div class="page-bar">
+    <div>
+        <h1>Editar usuario</h1>
+        <p class="sub">{{ $usuario->nombre }} {{ $usuario->apellidos }}</p>
+    </div>
+    <a href="{{ route('usuarios.index') }}" class="btn btn-ghost btn-sm">Volver</a>
+</div>
 
-        <label>Email</label>
-        <input type="email" name="email" value="{{ old('email', $usuario->email) }}">
-        @error('email') <p class="error">{{ $message }}</p> @enderror
+<div class="wrap">
 
-        <label>Password <small>(dejar vacío para no cambiar)</small></label>
-        <input type="password" name="password">
-        @error('password') <p class="error">{{ $message }}</p> @enderror
+    @if($errors->any())
+        <div class="alert alert-e">
+            <ul style="padding-left:1rem; margin:0;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-        <label>Rol</label>
-        <select name="rol">
-            <option value="">-- Selecciona un rol --</option>
-            <option value="cliente" {{ old('rol', $usuario->rol) == 'cliente' ? 'selected' : '' }}>Cliente</option>
-            <option value="empleado" {{ old('rol', $usuario->rol) == 'empleado' ? 'selected' : '' }}>Empleado</option>
-            <option value="gerente" {{ old('rol', $usuario->rol) == 'gerente' ? 'selected' : '' }}>Gerente</option>
-        </select>
-        @error('rol') <p class="error">{{ $message }}</p> @enderror
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ route('usuarios.update', $usuario) }}">
+                @csrf
+                @method('PUT')
 
-        <button type="submit" class="btn btn-save">Actualizar</button>
-        <a href="{{ route('usuarios.index') }}" class="btn-back">Cancelar</a>
-    </form>
-</body>
-</html>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="nombre">Nombre</label>
+                        <input class="form-control" type="text" id="nombre" name="nombre"
+                               value="{{ old('nombre', $usuario->nombre) }}">
+                        @error('nombre') <p class="form-error">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="apellidos">Apellidos</label>
+                        <input class="form-control" type="text" id="apellidos" name="apellidos"
+                               value="{{ old('apellidos', $usuario->apellidos) }}">
+                        @error('apellidos') <p class="form-error">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="correo">Correo electronico</label>
+                    <input class="form-control" type="email" id="correo" name="correo"
+                           value="{{ old('correo', $usuario->correo) }}">
+                    @error('correo') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="clave">Contrasena <span class="text-muted" style="font-weight:400">(dejar vacío para no cambiar)</span></label>
+                        <input class="form-control" type="password" id="clave" name="clave">
+                        @error('clave') <p class="form-error">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="rol">Rol</label>
+                        <select class="form-control" id="rol" name="rol">
+                            <option value="">-- Selecciona un rol --</option>
+                            <option value="cliente"       {{ old('rol', $usuario->rol) === 'cliente'       ? 'selected' : '' }}>Cliente</option>
+                            <option value="empleado"      {{ old('rol', $usuario->rol) === 'empleado'      ? 'selected' : '' }}>Empleado</option>
+                            <option value="gerente"       {{ old('rol', $usuario->rol) === 'gerente'       ? 'selected' : '' }}>Gerente</option>
+                            <option value="administrador" {{ old('rol', $usuario->rol) === 'administrador' ? 'selected' : '' }}>Administrador</option>
+                        </select>
+                        @error('rol') <p class="form-error">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:.75rem; margin-top:.5rem;">
+                    <button type="submit" class="btn btn-warning">Actualizar usuario</button>
+                    <a href="{{ route('usuarios.index') }}" class="btn btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+@endsection

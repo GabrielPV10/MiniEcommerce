@@ -8,6 +8,7 @@ use App\Models\Producto;
 use App\Models\Venta;
 use App\Models\Usuario;
 use App\Http\Requests\StoreVentaRequest;
+use App\Http\Requests\UpdateVentaRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -74,7 +75,7 @@ class VentaController extends Controller
         return view('ventas.edit', compact('venta', 'usuarios', 'productos'));
     }
 
-    public function update(StoreVentaRequest $request, Venta $venta)
+    public function update(UpdateVentaRequest $request, Venta $venta)
     {
         $this->authorize('update', $venta);
 

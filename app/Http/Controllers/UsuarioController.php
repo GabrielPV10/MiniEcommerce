@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Usuario;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreUsuarioRequest;
+use App\Http\Requests\UpdateUsuarioRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UsuarioController extends Controller
@@ -23,17 +24,9 @@ class UsuarioController extends Controller
         return view('usuarios.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreUsuarioRequest $request)
     {
         $this->authorize('create', Usuario::class);
-
-        $request->validate([
-            'nombre'    => 'required|string|max:255',
-            'apellidos' => 'required|string|max:255',
-            'correo'    => 'required|email|unique:usuarios,correo',
-            'clave'     => 'required|min:6',
-            'rol'       => 'required|in:administrador,gerente,empleado,cliente',
-        ]);
 
         Usuario::create([
             'nombre'    => $request->nombre,
@@ -58,16 +51,9 @@ class UsuarioController extends Controller
         return view('usuarios.edit', compact('usuario'));
     }
 
-    public function update(Request $request, Usuario $usuario)
+    public function update(UpdateUsuarioRequest $request, Usuario $usuario)
     {
         $this->authorize('update', $usuario);
-
-        $request->validate([
-            'nombre'    => 'required|string|max:255',
-            'apellidos' => 'required|string|max:255',
-            'correo'    => 'required|email|unique:usuarios,correo,' . $usuario->id,
-            'rol'       => 'required|in:administrador,gerente,empleado,cliente',
-        ]);
 
         $usuario->nombre    = $request->nombre;
         $usuario->apellidos = $request->apellidos;

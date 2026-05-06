@@ -72,7 +72,8 @@ class ProductoController extends Controller
     {
         $this->authorize('view', $producto);
         $producto->load(['usuario', 'categorias']);
-        return view('productos.show', compact('producto'));
+        $vista = auth()->user()->rol === 'cliente' ? 'productos.show-store' : 'productos.show';
+        return view($vista, compact('producto'));
     }
 
     public function edit(Producto $producto)

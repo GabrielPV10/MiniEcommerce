@@ -45,9 +45,9 @@
                     <label class="form-label">Vendedor</label>
                     <select name="vendedor_id" class="form-control">
                         <option value="">-- Selecciona un vendedor --</option>
-                        @foreach($usuarios as $usuario)
-                            <option value="{{ $usuario->id }}" {{ old('vendedor_id') == $usuario->id ? 'selected' : '' }}>
-                                {{ $usuario->nombre }} {{ $usuario->apellidos }} ({{ $usuario->rol }})
+                        @foreach($vendedores as $vendedor)
+                            <option value="{{ $vendedor->id }}" {{ old('vendedor_id') == $vendedor->id ? 'selected' : '' }}>
+                                {{ $vendedor->nombre }} {{ $vendedor->apellidos }} ({{ ucfirst($vendedor->rol) }})
                             </option>
                         @endforeach
                     </select>
@@ -58,9 +58,9 @@
                     <label class="form-label">Cliente</label>
                     <select name="cliente_id" class="form-control">
                         <option value="">-- Selecciona un cliente --</option>
-                        @foreach($usuarios as $usuario)
-                            <option value="{{ $usuario->id }}" {{ old('cliente_id') == $usuario->id ? 'selected' : '' }}>
-                                {{ $usuario->nombre }} {{ $usuario->apellidos }} ({{ $usuario->rol }})
+                        @foreach($clientes as $cliente)
+                            <option value="{{ $cliente->id }}" {{ old('cliente_id') == $cliente->id ? 'selected' : '' }}>
+                                {{ $cliente->nombre }} {{ $cliente->apellidos }}
                             </option>
                         @endforeach
                     </select>

@@ -1,0 +1,48 @@
+name: Laravel CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_sqlite, sqlite3
+          coverage: none
+
+      - name: Instalar dependencias Composer
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Configurar entorno de pruebas
+        run: cp .env.example .env
+
+      - name: Generar clave de aplicacion
+        run: php artisan key:generate
+
+      - name: Ejecutar migraciones con SQLite
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/testing.sqlite
+        run: |
+          touch database/testing.sqlite
+          php artisan migrate --force
+
+      - name: Ejecutar seeders
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/testing.sqlite
+        run: php artisan db:seed --force
+
+      - name: Ejecutar pruebas automaticas
+        run: php artisan test

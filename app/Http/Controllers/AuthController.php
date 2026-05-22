@@ -97,7 +97,11 @@ class AuthController extends Controller
             'ip'         => $request->ip(),
         ]);
 
-        Mail::to($usuario->correo)->send(new CodigoVerificacionMail($codigo, $usuario->nombre));
+        try {
+            Mail::to($usuario->correo)->send(new CodigoVerificacionMail($codigo, $usuario->nombre));
+        } catch (\Exception $e) {
+            Log::error('Error enviando correo 2FA: ' . $e->getMessage());
+        }
 
         // Guardar solo el ID en sesion — NO iniciar sesion aun
         $request->session()->put('2fa_usuario_id', $usuario->id);

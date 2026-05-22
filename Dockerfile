@@ -41,7 +41,6 @@ EXPOSE 80
 
 # Al arrancar: correr migraciones y seeders, luego iniciar Apache
 CMD php artisan migrate --force \
-    && php artisan db:seed --force \
     && php artisan storage:link \
     && php artisan config:cache \
     && php artisan route:cache \

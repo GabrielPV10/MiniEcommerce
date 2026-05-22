@@ -13,13 +13,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // ── 1. Administrador fijo ─────────────────────────────────────────────
-        Usuario::create([
-            'nombre'    => 'Admin',
-            'apellidos' => 'Sistema',
-            'correo'    => 'admin@tuxtla.tecnm.mx',
-            'clave'     => '123456',   // cast 'hashed' lo hashea automáticamente
-            'rol'       => 'administrador',
-        ]);
+        Usuario::firstOrCreate(
+            ['correo' => 'admin@tuxtla.tecnm.mx'],
+            [
+                'nombre'    => 'Admin',
+                'apellidos' => 'Sistema',
+                'clave'     => '123456',
+                'rol'       => 'administrador',
+            ]
+        );
 
         // ── 2. 100 usuarios: 70 clientes + 25 empleados + 5 gerentes ─────────
         $clientes   = Usuario::factory(70)->cliente()->create();

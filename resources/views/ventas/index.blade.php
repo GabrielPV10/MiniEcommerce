@@ -5,8 +5,13 @@
 
 <div class="page-bar">
     <div>
-        <h1>Ventas</h1>
-        <p class="sub">Registro de transacciones del sistema</p>
+        @if(auth()->user()->rol === 'cliente')
+            <h1>Mis pedidos</h1>
+            <p class="sub">Historial de tus compras</p>
+        @else
+            <h1>Ventas</h1>
+            <p class="sub">Registro de transacciones del sistema</p>
+        @endif
     </div>
     @can('create', App\Models\Venta::class)
         <a href="{{ route('ventas.create') }}" class="btn btn-success btn-sm">+ Nueva venta</a>

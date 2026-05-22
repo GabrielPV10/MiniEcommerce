@@ -90,6 +90,22 @@
         </div>
     </div>
 
+    @if(auth()->user()->rol === 'cliente')
+        <div style="margin-top:1.5rem">
+            @if($producto->existencia > 0)
+                <form action="{{ route('productos.comprar', $producto) }}" method="POST" style="display:inline">
+                    @csrf
+                    <button type="submit" class="btn btn-success"
+                            onclick="return confirm('¿Confirmar compra de {{ $producto->nombre }} por ${{ number_format($producto->precio, 2) }}?')">
+                        Comprar — ${{ number_format($producto->precio, 2) }}
+                    </button>
+                </form>
+            @else
+                <span class="badge badge-red">Producto agotado</span>
+            @endif
+        </div>
+    @endif
+
     @can('delete', $producto)
         <div style="margin-top:1rem">
             <form action="{{ route('productos.destroy', $producto) }}" method="POST" style="display:inline">

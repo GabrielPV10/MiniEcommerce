@@ -9,6 +9,7 @@ use App\Models\Venta;
 use App\Models\Usuario;
 use App\Http\Requests\StoreVentaRequest;
 use App\Http\Requests\UpdateVentaRequest;
+use App\Models\Categoria;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -22,7 +23,17 @@ class VentaController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Venta::class);
-        $ventas = Venta::with(['cliente', 'vendedor', 'producto'])->get();
+        $usuario = auth()->user();
+
+        if ($usuario->rol === 'cliente') {
+            $ventas = Venta::with(['cliente', 'vendedor', 'producto'])
+                ->where('cliente_id', $usuario->id)
+                ->latest()
+                ->get();
+        } else {
+            $ventas = Venta::with(['cliente', 'vendedor', 'producto'])->get();
+        }
+
         return view('ventas.index', compact('ventas'));
     }
 
@@ -117,6 +128,42 @@ class VentaController extends Controller
         ]);
 
         return redirect()->route('ventas.index')->with('success', 'Venta eliminada correctamente.');
+    }
+
+    // Flujo de compra para clientes desde la tienda
+    public function comprar(Producto $producto)
+    {
+        $usuario = auth()->user();
+
+        if ($usuario->rol !== 'cliente') {
+            abort(403);
+        }
+
+        if ($producto->existencia <= 0) {
+            return back()->with('error', 'Este producto está agotado.');
+        }
+
+        $venta = Venta::create([
+            'producto_id' => $producto->id,
+            'vendedor_id' => $producto->usuario_id,
+            'cliente_id'  => $usuario->id,
+            'fecha'       => now()->format('Y-m-d'),
+            'total'       => $producto->precio,
+            'validada'    => false,
+        ]);
+
+        $producto->decrement('existencia');
+
+        Log::channel('ventas')->info('Compra realizada por cliente', [
+            'venta_id'    => $venta->id,
+            'producto_id' => $producto->id,
+            'cliente_id'  => $usuario->id,
+            'total'       => $venta->total,
+            'ip'          => request()->ip(),
+        ]);
+
+        return redirect()->route('ventas.index')
+            ->with('success', '¡Compra realizada! Tu pedido está pendiente de validación.');
     }
 
     // Valida la venta y notifica por correo a vendedor y comprador

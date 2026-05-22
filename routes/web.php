@@ -138,6 +138,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/ventas/{venta}/ticket',   [VentaController::class, 'ticket'])->name('ventas.ticket');
     Route::post('/ventas/{venta}/validar', [VentaController::class, 'validar'])->name('ventas.validar');
 
+    Route::post('/productos/{producto}/comprar', [VentaController::class, 'comprar'])->name('productos.comprar');
     Route::resource('productos', ProductoController::class);
 
     // CRUD Usuarios

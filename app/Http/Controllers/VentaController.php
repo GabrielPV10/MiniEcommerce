@@ -29,9 +29,10 @@ class VentaController extends Controller
     public function create()
     {
         $this->authorize('create', Venta::class);
-        $usuarios  = Usuario::all();
-        $productos = Producto::all();
-        return view('ventas.create', compact('usuarios', 'productos'));
+        $vendedores = Usuario::whereIn('rol', ['empleado', 'gerente', 'administrador'])->orderBy('nombre')->get();
+        $clientes   = Usuario::where('rol', 'cliente')->orderBy('nombre')->get();
+        $productos  = Producto::orderBy('nombre')->get();
+        return view('ventas.create', compact('vendedores', 'clientes', 'productos'));
     }
 
     public function store(StoreVentaRequest $request)

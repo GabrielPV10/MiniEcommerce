@@ -2,15 +2,24 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use App\Models\CodigoVerificacion;
+use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    /**
-     * A basic test example.
-     */
-    public function test_that_true_is_true(): void
+    public function test_codigo_expirado_retorna_true_cuando_ya_vencio(): void
     {
-        $this->assertTrue(true);
+        $codigo             = new CodigoVerificacion();
+        $codigo->expiracion = now()->subMinutes(1);
+
+        $this->assertTrue($codigo->estaExpirado());
+    }
+
+    public function test_codigo_vigente_retorna_false_cuando_no_ha_vencido(): void
+    {
+        $codigo             = new CodigoVerificacion();
+        $codigo->expiracion = now()->addMinutes(4);
+
+        $this->assertFalse($codigo->estaExpirado());
     }
 }

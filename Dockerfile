@@ -18,7 +18,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Instalar dependencias PHP
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --optimize-autoloader --no-interaction
 
 # Permisos de almacenamiento
 RUN chown -R www-data:www-data storage bootstrap/cache \

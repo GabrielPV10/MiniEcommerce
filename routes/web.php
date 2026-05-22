@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\CartController;
 
 // ─── Rutas públicas ───────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -137,6 +138,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('ventas', VentaController::class);
     Route::get('/ventas/{venta}/ticket',   [VentaController::class, 'ticket'])->name('ventas.ticket');
     Route::post('/ventas/{venta}/validar', [VentaController::class, 'validar'])->name('ventas.validar');
+
+    // Carrito de compras (solo clientes)
+    Route::get('/carrito',                          [CartController::class, 'show'])->name('carrito.show');
+    Route::post('/carrito/agregar/{producto}',       [CartController::class, 'agregar'])->name('carrito.agregar');
+    Route::delete('/carrito/remover/{producto}',    [CartController::class, 'remover'])->name('carrito.remover');
+    Route::post('/carrito/checkout',                [CartController::class, 'checkout'])->name('carrito.checkout');
 
     Route::post('/productos/{producto}/comprar', [VentaController::class, 'comprar'])->name('productos.comprar');
     Route::resource('productos', ProductoController::class);

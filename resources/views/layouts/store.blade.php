@@ -258,14 +258,14 @@
 
         <div class="topbar-actions">
 
-            {{-- Mis pedidos --}}
-            <a href="{{ route('ventas.index') }}" class="icon-btn" title="Mis pedidos">
+            {{-- Carrito --}}
+            <a href="{{ route('carrito.show') }}" class="icon-btn" title="Mi carrito">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                 </svg>
-                @php $misCompras = \App\Models\Venta::where('cliente_id', auth()->id())->count(); @endphp
-                @if($misCompras > 0)
-                    <span class="icon-badge">{{ $misCompras }}</span>
+                @php $itemsCarrito = count(session('carrito', [])); @endphp
+                @if($itemsCarrito > 0)
+                    <span class="icon-badge">{{ $itemsCarrito }}</span>
                 @endif
             </a>
 
@@ -285,8 +285,12 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
                         Mi panel
                     </a>
-                    <a href="{{ route('ventas.index') }}">
+                    <a href="{{ route('carrito.show') }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                        Mi carrito
+                    </a>
+                    <a href="{{ route('ventas.index') }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M9.5 0a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5H8v3.5a1 1 0 0 1 1 1v1.5h-.5a.5.5 0 0 0 0 1H9v1H8.5a.5.5 0 0 0 0 1H9v2.5a.5.5 0 0 1-1 0V10H7.5a.5.5 0 0 0 0-1H8V8H7a.5.5 0 0 0 0 1h.5v1H7a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1V2H5.5a.5.5 0 0 1 0-1H9.5z"/></svg>
                         Mis pedidos
                     </a>
                     <div class="dropdown-divider"></div>

@@ -12,6 +12,12 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Si la BD ya tiene datos, no re-seedear
+        if (Usuario::where('correo', 'admin@tuxtla.tecnm.mx')->exists()) {
+            $this->command->info('Base de datos ya poblada, omitiendo seeder.');
+            return;
+        }
+
         // ── 1. Administrador fijo ─────────────────────────────────────────────
         Usuario::firstOrCreate(
             ['correo' => 'admin@tuxtla.tecnm.mx'],

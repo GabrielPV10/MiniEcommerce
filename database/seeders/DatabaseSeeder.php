@@ -12,8 +12,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Si la BD ya tiene datos, no re-seedear
-        if (Usuario::where('correo', 'admin@tuxtla.tecnm.mx')->exists()) {
+        // Si ya hay productos, la BD está poblada — no re-seedear
+        if (Producto::count() > 0) {
             $this->command->info('Base de datos ya poblada, omitiendo seeder.');
             return;
         }

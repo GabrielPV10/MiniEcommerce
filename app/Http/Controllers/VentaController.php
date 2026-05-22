@@ -30,6 +30,11 @@ class VentaController extends Controller
                 ->where('cliente_id', $usuario->id)
                 ->latest()
                 ->get();
+        } elseif ($usuario->rol === 'empleado') {
+            $ventas = Venta::with(['cliente', 'vendedor', 'producto'])
+                ->where('vendedor_id', $usuario->id)
+                ->latest()
+                ->get();
         } else {
             $ventas = Venta::with(['cliente', 'vendedor', 'producto'])->get();
         }

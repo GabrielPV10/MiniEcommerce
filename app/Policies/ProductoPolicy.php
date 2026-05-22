@@ -7,39 +7,31 @@ use App\Models\Usuario;
 
 class ProductoPolicy
 {
-    // Todos los roles pueden ver la lista
     public function viewAny(Usuario $usuario): bool
     {
-        return in_array($usuario->rol, [
-            'administrador', 'gerente', 'cliente'
-        ]);
+        return in_array($usuario->rol, ['administrador', 'gerente', 'empleado', 'cliente']);
     }
 
-    // Todos pueden ver el detalle
     public function view(Usuario $usuario, Producto $producto): bool
     {
-        return in_array($usuario->rol, [
-            'administrador', 'gerente', 'cliente'
-        ]);
+        return in_array($usuario->rol, ['administrador', 'gerente', 'empleado', 'cliente']);
     }
 
-    // Solo administrador y gerente pueden crear
+    // Administrador, gerente y empleado pueden crear productos
     public function create(Usuario $usuario): bool
     {
-        return in_array($usuario->rol, [
-            'administrador', 'gerente'
-        ]);
+        return in_array($usuario->rol, ['administrador', 'gerente', 'empleado']);
     }
 
-    // Administrador edita todo
-    // Gerente solo edita sus propios productos
+    // Administrador edita cualquier producto
+    // Gerente y empleado solo editan sus propios productos
     public function update(Usuario $usuario, Producto $producto): bool
     {
         if ($usuario->rol === 'administrador') {
             return true;
         }
 
-        if ($usuario->rol === 'gerente') {
+        if (in_array($usuario->rol, ['gerente', 'empleado'])) {
             return $producto->usuario_id === $usuario->id;
         }
 

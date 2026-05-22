@@ -8,6 +8,9 @@
         @if(auth()->user()->rol === 'cliente')
             <h1>Mis pedidos</h1>
             <p class="sub">Historial de tus compras</p>
+        @elseif(auth()->user()->rol === 'empleado')
+            <h1>Mis ventas</h1>
+            <p class="sub">Ventas donde eres el vendedor</p>
         @else
             <h1>Ventas</h1>
             <p class="sub">Registro de transacciones del sistema</p>

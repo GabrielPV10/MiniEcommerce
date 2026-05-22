@@ -9,12 +9,12 @@ class CategoriaPolicy
 {
     public function viewAny(Usuario $usuario): bool
     {
-        return in_array($usuario->rol, ['administrador', 'gerente', 'cliente']);
+        return in_array($usuario->rol, ['administrador', 'gerente', 'empleado', 'cliente']);
     }
 
     public function view(Usuario $usuario, Categoria $categoria): bool
     {
-        return in_array($usuario->rol, ['administrador', 'gerente', 'cliente']);
+        return in_array($usuario->rol, ['administrador', 'gerente', 'empleado', 'cliente']);
     }
 
     public function create(Usuario $usuario): bool

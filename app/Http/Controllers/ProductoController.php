@@ -8,8 +8,8 @@ use App\Http\Requests\StoreProductoRequest;
 use App\Http\Requests\UpdateProductoRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class ProductoController extends Controller
 {
@@ -39,7 +39,10 @@ class ProductoController extends Controller
         $fotos = [];
         if ($request->hasFile('fotos')) {
             foreach ($request->file('fotos') as $foto) {
-                $fotos[] = $foto->store('productos', 'public');
+                $resultado = Cloudinary::upload($foto->getRealPath(), [
+                    'folder' => 'productos',
+                ]);
+                $fotos[] = $resultado->getSecurePath();
             }
         }
 
@@ -90,12 +93,12 @@ class ProductoController extends Controller
         $fotos = $producto->fotos ?? [];
 
         if ($request->hasFile('fotos')) {
-            foreach ($fotos as $fotoAnterior) {
-                Storage::disk('public')->delete($fotoAnterior);
-            }
             $fotos = [];
             foreach ($request->file('fotos') as $foto) {
-                $fotos[] = $foto->store('productos', 'public');
+                $resultado = Cloudinary::upload($foto->getRealPath(), [
+                    'folder' => 'productos',
+                ]);
+                $fotos[] = $resultado->getSecurePath();
             }
         }
 
@@ -127,10 +130,6 @@ class ProductoController extends Controller
     public function destroy(Producto $producto)
     {
         $this->authorize('delete', $producto);
-
-        foreach ($producto->fotos ?? [] as $foto) {
-            Storage::disk('public')->delete($foto);
-        }
 
         Log::channel('productos')->info('Producto eliminado', [
             'producto_id' => $producto->id,

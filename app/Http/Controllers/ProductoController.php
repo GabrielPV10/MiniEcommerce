@@ -9,11 +9,22 @@ use App\Http\Requests\UpdateProductoRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Cloudinary\Cloudinary;
 
 class ProductoController extends Controller
 {
     use AuthorizesRequests;
+
+    private function cloudinary()
+    {
+        return new Cloudinary([
+            'cloud' => [
+                'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                'api_key'    => env('CLOUDINARY_API_KEY'),
+                'api_secret' => env('CLOUDINARY_API_SECRET'),
+            ],
+        ]);
+    }
 
     public function index()
     {
@@ -38,11 +49,12 @@ class ProductoController extends Controller
 
         $fotos = [];
         if ($request->hasFile('fotos')) {
+            $cloudinary = $this->cloudinary();
             foreach ($request->file('fotos') as $foto) {
-                $resultado = Cloudinary::upload($foto->getRealPath(), [
+                $resultado = $cloudinary->uploadApi()->upload($foto->getRealPath(), [
                     'folder' => 'productos',
                 ]);
-                $fotos[] = $resultado->getSecurePath();
+                $fotos[] = $resultado['secure_url'];
             }
         }
 
@@ -94,11 +106,12 @@ class ProductoController extends Controller
 
         if ($request->hasFile('fotos')) {
             $fotos = [];
+            $cloudinary = $this->cloudinary();
             foreach ($request->file('fotos') as $foto) {
-                $resultado = Cloudinary::upload($foto->getRealPath(), [
+                $resultado = $cloudinary->uploadApi()->upload($foto->getRealPath(), [
                     'folder' => 'productos',
                 ]);
-                $fotos[] = $resultado->getSecurePath();
+                $fotos[] = $resultado['secure_url'];
             }
         }
 

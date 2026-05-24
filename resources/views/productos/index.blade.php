@@ -41,7 +41,7 @@
                         <td class="text-muted text-sm">{{ $producto->id }}</td>
                         <td>
                             @if($producto->fotos && count($producto->fotos) > 0)
-                                <img src="{{ Storage::disk('public')->url($producto->fotos[0]) }}"
+                                <img src="{{ $producto->fotos[0] }}"
                                      alt="{{ $producto->nombre }}"
                                      style="width:48px; height:48px; object-fit:cover; border-radius:4px;">
                             @else

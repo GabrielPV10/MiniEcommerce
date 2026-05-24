@@ -29,7 +29,7 @@
             <div class="card-body">
                 <div style="display:flex; gap:1rem; flex-wrap:wrap;">
                     @foreach($producto->fotos as $foto)
-                        <img src="{{ Storage::disk('public')->url($foto) }}"
+                        <img src="{{ $foto }}"
                              alt="Foto de {{ $producto->nombre }}"
                              style="width:160px; height:160px; object-fit:cover; border-radius:4px; border:1px solid #e2e8f0;">
                     @endforeach

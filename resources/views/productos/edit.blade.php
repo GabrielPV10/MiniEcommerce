@@ -79,7 +79,7 @@
                         <label class="form-label">Fotos actuales</label>
                         <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:.4rem;">
                             @foreach($producto->fotos as $foto)
-                                <img src="{{ Storage::disk('public')->url($foto) }}"
+                                <img src="{{ $foto }}"
                                      alt="Foto producto"
                                      style="width:100px; height:100px; object-fit:cover; border-radius:4px; border:1px solid #e2e8f0;">
                             @endforeach

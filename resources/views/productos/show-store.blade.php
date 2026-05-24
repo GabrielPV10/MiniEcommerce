@@ -102,7 +102,7 @@
         <div>
             <div class="gallery-main">
                 @if($producto->fotos && count($producto->fotos) > 0)
-                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($producto->fotos[0]) }}"
+                    <img src="{{ $producto->fotos[0] }}"
                          alt="{{ $producto->nombre }}" id="mainImgEl">
                 @else
                     <div class="gallery-placeholder">
@@ -119,8 +119,8 @@
             <div class="gallery-thumbs">
                 @foreach($producto->fotos as $i => $foto)
                 <div class="gallery-thumb {{ $i === 0 ? 'active' : '' }}"
-                     onclick="setImg('{{ \Illuminate\Support\Facades\Storage::disk('public')->url($foto) }}', this)">
-                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($foto) }}" alt="">
+                     onclick="setImg('{{ $foto }}', this)">
+                    <img src="{{ $foto }}" alt="">
                 </div>
                 @endforeach
             </div>

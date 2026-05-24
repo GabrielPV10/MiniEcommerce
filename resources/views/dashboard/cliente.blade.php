@@ -39,7 +39,7 @@
 
         <div class="p-img">
             @if($producto->fotos && count($producto->fotos) > 0)
-                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($producto->fotos[0]) }}"
+                <img src="{{ $producto->fotos[0] }}"
                      alt="{{ $producto->nombre }}">
             @else
                 <div class="p-img-placeholder">

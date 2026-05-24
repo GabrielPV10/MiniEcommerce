@@ -43,6 +43,7 @@ EXPOSE 80
 CMD php artisan migrate --force \
     && php artisan db:seed --force --class=DatabaseSeeder 2>/dev/null || true \
     && php artisan storage:link \
+    && php artisan config:clear \
     && php artisan config:cache \
     && php artisan route:cache \
     && apache2-foreground
